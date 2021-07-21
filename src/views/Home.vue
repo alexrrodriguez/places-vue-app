@@ -30,6 +30,9 @@
         <button>Close</button>
       </form>
     </dialog>
+    <ul>
+      <li v-for="error in errors" :key="error.id">{{ error }}</li>
+    </ul>
   </div>
 </template>
 
@@ -43,6 +46,7 @@ export default {
       places: [],
       newPlaceParams: {},
       currentPlace: {},
+      errors: [],
     };
   },
   created: function () {
@@ -65,6 +69,7 @@ export default {
         })
         .catch((error) => {
           console.log("place create error", error.response);
+          this.errors = error.response.data.errors;
         });
     },
     showPlace: function (place) {
