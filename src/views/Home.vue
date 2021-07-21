@@ -12,7 +12,24 @@
     <div v-for="place in places" v-bind:key="place.id">
       <h2>{{ place.name }}</h2>
       <p>Address: {{ place.address }}</p>
+      <button v-on:click="showPlace(place)">More Info</button>
     </div>
+    <dialog id="place-details">
+      <form method="dialog">
+        <h1>Place Info</h1>
+        <p>
+          Name:
+          <input type="text" v-model="currentPlace.name" />
+        </p>
+        <p>
+          Address:
+          <input type="text" v-model="currentPlace.address" />
+        </p>
+        <button v-on:click="updatePlace(currentPlace)">Update</button>
+        <button v-on:click="destroyPlace(currentPlace)">Delete</button>
+        <button>Close</button>
+      </form>
+    </dialog>
   </div>
 </template>
 
@@ -25,6 +42,7 @@ export default {
     return {
       places: [],
       newPlaceParams: {},
+      currentPlace: {},
     };
   },
   created: function () {
@@ -48,6 +66,29 @@ export default {
         .catch((error) => {
           console.log("place create error", error.response);
         });
+    },
+    showPlace: function (place) {
+      this.currentPlace = place;
+      document.querySelector("#place-details").showModal();
+    },
+    updatePlace: function (place) {
+      var editPlaceParams = place;
+      axios
+        .patch("http://localhost:3000/places/" + place.id, editPlaceParams)
+        .then((response) => {
+          console.log("place updated", response);
+          this.currentPlace = {};
+        })
+        .catch((error) => {
+          console.log("places update error", error.response);
+        });
+    },
+    destroyPlace: function (place) {
+      axios.delete("http://localhost:3000/places/" + place.id).then((response) => {
+        console.log("place destroy", response);
+        var index = this.places.indexOf(place);
+        this.places.splice(index, 1);
+      });
     },
   },
 };
